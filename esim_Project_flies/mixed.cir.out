@@ -1,0 +1,41 @@
+* /home/paras.vekariya/esim-workspace/mixed/mixed.cir
+
+.lib "/usr/share/local/sky130_fd_pr/models/sky130.lib.spice" tt
+.include "/usr/share/local/sky130_fd_pr/models/sky130_fd_pr__model__pnp.model.spice"
+.include "/usr/share/local/sky130_fd_pr/models/sky130_fd_pr__model__linear.model.spice"
+.include "/usr/share/local/sky130_fd_pr/models/sky130_fd_pr__model__inductors.model.spice"
+.include "/usr/share/local/sky130_fd_pr/models/sky130_fd_pr__model__r+c.model.spice"
+.include "/usr/share/local/sky130_fd_pr/models/sky130_fd_pr__model__diode_pw2nd_11v0.model.spice"
+.include "/usr/share/local/sky130_fd_pr/models/sky130_fd_pr__model__diode_pd2nw_11v0.model.spice"
+* u4  net-_u4-pad1_ net-_u4-pad2_ net-_u4-pad3_ net-_u4-pad4_ parasvekariya_2in1mux
+v3  select gnd pulse(0 5 1m 1m 1m 20 40)
+v2  d1 gnd pulse(0 0 1m 1m 1m 10 20)
+v1  d0 gnd pulse(5 5 1m 1m 1m 5 10)
+* u3  select plot_v1
+* u2  d1 plot_v1
+* u1  d0 plot_v1
+* u5  d0 d1 select net-_u4-pad1_ net-_u4-pad2_ net-_u4-pad3_ adc_bridge_3
+* u6  net-_u4-pad4_ net-_sc1-pad1_ dac_bridge_1
+xsc1 net-_sc1-pad1_ y_out net-_sc1-pad1_ sky130_fd_pr__res_generic_pd 
+xsc2 y_out gnd sky130_fd_pr__cap_mim_m3_1 
+* u7  y_out plot_v1
+* s c m o d e
+a1 [net-_u4-pad1_ ] [net-_u4-pad2_ ] [net-_u4-pad3_ ] [net-_u4-pad4_ ] u4
+a2 [d0 d1 select ] [net-_u4-pad1_ net-_u4-pad2_ net-_u4-pad3_ ] u5
+a3 [net-_u4-pad4_ ] [net-_sc1-pad1_ ] u6
+* Schematic Name:                             parasvekariya_2in1mux, NgSpice Name: parasvekariya_2in1mux
+.model u4 parasvekariya_2in1mux(rise_delay=1.0e-9 fall_delay=1.0e-9 input_load=1.0e-12 instance_id=1 ) 
+* Schematic Name:                             adc_bridge_3, NgSpice Name: adc_bridge
+.model u5 adc_bridge(in_low=1.0 in_high=2.0 rise_delay=1.0e-9 fall_delay=1.0e-9 ) 
+* Schematic Name:                             dac_bridge_1, NgSpice Name: dac_bridge
+.model u6 dac_bridge(out_low=0.0 out_high=5.0 out_undef=0.5 input_load=1.0e-12 t_rise=1.0e-9 t_fall=1.0e-9 ) 
+.tran 1e-00 100e-00 0e-00
+
+* Control Statements 
+.control
+run
+print allv > plot_data_v.txt
+print alli > plot_data_i.txt
+plot v(select) + 30 v(d1) + 20 v(d0) + 10 v(y_out)
+.endc
+.end
